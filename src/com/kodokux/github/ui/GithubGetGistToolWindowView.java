@@ -15,6 +15,7 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.fileEditor.FileEditorManager;
+import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -24,9 +25,11 @@ import com.intellij.openapi.project.Project;
 import com.intellij.openapi.ui.SimpleToolWindowPanel;
 import com.intellij.openapi.util.IconLoader;
 import com.intellij.openapi.vfs.VirtualFile;
+import com.intellij.openapi.wm.ToolWindow;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
+import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.kodokux.github.EditorManager;
@@ -44,6 +47,7 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
+import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -67,6 +71,18 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
     private final Project project;
     private final String extension;
 
+    private JSplitPane mySplitPane = new JSplitPane();
+    private JPanel myLeftComponent = new JPanel(new BorderLayout());
+    private JPanel myRightComponent = new JPanel(new BorderLayout());
+
+    {
+        mySplitPane.setOpaque(false);
+        mySplitPane.setBorder(IdeBorderFactory.createEmptyBorder(1, 0, 2, 0));
+        mySplitPane.setContinuousLayout(true);
+        myLeftComponent.setOpaque(false);
+        myRightComponent.setOpaque(false);
+    }
+
     protected Editor editor;
     protected DefaultTreeModel model;
     protected Document document;
@@ -74,6 +90,48 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
     private String previousCode;
     private VirtualFile previousFile;
     private Tree jTree;
+
+    private void writeToEditor() {
+        final Editor mainEditor = FileEditorManager.getInstance(project).getSelectedTextEditor();
+        if (mainEditor != null) {
+            CommandProcessor.getInstance().executeCommand(mainEditor.getProject(), new Runnable() {
+                @Override
+                public void run() {
+                    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            String sourceCode = "";
+                            if (editor.getSelectionModel().hasSelection()) {
+                                sourceCode = editor.getSelectionModel().getSelectedText();
+                            } else {
+                                sourceCode = editor.getDocument().getText();
+                            }
+
+                            Document document = mainEditor.getDocument();
+                            int offsetStart = mainEditor.getCaretModel().getOffset();
+                            int sourceCodeLength = sourceCode.length();
+                            SelectionModel selectionModel = mainEditor.getSelectionModel();
+
+                            if (selectionModel.hasSelection()) {
+                                offsetStart = selectionModel.getSelectionStart();
+                                int offsetEnd = selectionModel.getSelectionEnd();
+                                document.replaceString(offsetStart, offsetEnd, sourceCode);
+                                selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
+                                mainEditor.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
+                            } else {
+                                document.insertString(offsetStart, sourceCode);
+                                selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
+                                mainEditor.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
+                            }
+                            mainEditor.getScrollingModel();
+                        }
+                    });
+                }
+            }, "Get Gist", UndoConfirmationPolicy.DEFAULT);
+        } else {
+            System.out.println("main editor");
+        }
+    }
 
     public GithubGetGistToolWindowView(final Project project, KeymapManager keymapManager, final ToolWindowManager toolWindowManager) {
         this(toolWindowManager, keymapManager, project, "php");
@@ -85,6 +143,17 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
         this.keymapManager = keymapManager;
         this.project = project;
         this.extension = fileExtension;
+
+        ToolWindow window = toolWindowManager.getToolWindow(toolWindowManager.getActiveToolWindowId());
+        if (window != null) {
+            window.activate(new Runnable() {
+                @Override
+                public void run() {
+                    mySplitPane.setDividerLocation(0.25);
+                }
+            });
+        }
+
         setupUI();
     }
 
@@ -124,52 +193,20 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                 Tree _tree = (Tree) e.getSource();
                 if (_tree.getLastSelectedPathComponent() instanceof GitHubGistFileTreeNode) {
                     if (e.getKeyChar() == KeyEvent.VK_ENTER) {
-                        final Editor editor1 = FileEditorManager.getInstance(project).getSelectedTextEditor();
-                        final String sourceCode = editor.getDocument().getText();
-                        if (editor1 != null) {
-                            CommandProcessor.getInstance().executeCommand(editor1.getProject(), new Runnable() {
-                                @Override
-                                public void run() {
-                                    ApplicationManager.getApplication().runWriteAction(new Runnable() {
-                                        @Override
-                                        public void run() {
-                                            Document document = editor1.getDocument();
-                                            int offsetStart = editor1.getCaretModel().getOffset();
-                                            int sourceCodeLength = sourceCode.length();
-                                            SelectionModel selectionModel = editor1.getSelectionModel();
-
-                                            if (selectionModel.hasSelection()) {
-                                                offsetStart = selectionModel.getSelectionStart();
-                                                int offsetEnd = selectionModel.getSelectionEnd();
-                                                document.replaceString(offsetStart, offsetEnd, sourceCode);
-                                                selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
-                                                editor1.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
-                                            } else {
-                                                document.insertString(offsetStart, sourceCode);
-                                                selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
-                                                editor1.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
-                                            }
-                                            editor1.getScrollingModel();
-                                        }
-                                    });
-                                }
-                            }, "Get Gist", UndoConfirmationPolicy.DEFAULT);
-                        }
+                        writeToEditor();
                     }
                 }
             }
         });
 
         JBScrollPane jbScrollPane = new JBScrollPane(jTree);
+        myLeftComponent.add(jbScrollPane);
+        JComponent editorComponent = editor.getComponent();
+        myRightComponent.add(editorComponent);
 
-        final JComponent editorComponent = editor.getComponent();
-        add(editorComponent);
-
-        JPanel jPanel = new JPanel();
-        jPanel.setLayout(new GridLayout(1, 2));
-        jPanel.add(jbScrollPane);
-        jPanel.add(editorComponent);
-        add(jPanel);
+        mySplitPane.setLeftComponent(myLeftComponent);
+        mySplitPane.setRightComponent(myRightComponent);
+        add(mySplitPane);
 
         final AnAction diffAction = createShowDiffAction();
         DefaultActionGroup group = new DefaultActionGroup();
@@ -189,48 +226,55 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
     }
 
     private void getGistsRawContent(final GitHubGistFileTreeNode fileNode) {
-
-        new Task.Backgroundable(project, "Creating Gist") {
-
-            public String fileSource;
-
-            @Override
-            public void onSuccess() {
-                ApplicationManager.getApplication().runWriteAction(new Runnable() {
-                    @Override
-                    public void run() {
-                        getEditor().getDocument().setText(fileSource);
+        if (fileNode != null) {
+            new Task.Backgroundable(project, "Get Gist") {
+                public String fileSource;
+                @Override
+                public void onSuccess() {
+                    if (!fileSource.isEmpty()) {
+                        ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                            @Override
+                            public void run() {
+                                int i = fileNode.getFilename().lastIndexOf('.');
+                                String ext = null;
+                                if (i > 0) {
+                                    ext = fileNode.getFilename().substring(i + 1);
+                                }
+                                FileType type = FileTypeManager.getInstance().getFileTypeByExtension(ext);
+                                PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(fileNode.getFilename(), type, fileSource);
+                                getEditor().getDocument().setText(fileSource);
+                            }
+                        });
                     }
-                });
-            }
-
-            @Override
-            public void run(@NotNull ProgressIndicator progressIndicator) {
-                try {
-                    URL url = new URL(fileNode.getUrl());
-                    HttpURLConnection urlconn = (HttpURLConnection) url.openConnection();
-                    urlconn.setRequestMethod("GET");
-//                    urlconn.setInstanceFollowRedirects(false);
-                    urlconn.setRequestProperty("UserAgent", "Kodokux github intellij plugin");
-                    urlconn.setRequestProperty("Accept", "text/html, text/plain");
-                    urlconn.connect();
-
-                    BufferedReader in = new BufferedReader(new InputStreamReader(urlconn.getInputStream()));
-                    StringBuilder buffer = new StringBuilder();
-                    char[] b = new char[1024];
-                    int line;
-                    while (0 <= (line = in.read(b))) {
-                        buffer.append(b, 0, line);
-                    }
-                    in.close();
-
-
-                    fileSource = buffer.toString();
-                } catch (IOException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                 }
-            }
-        }.queue();
+
+                @Override
+                public void run(@NotNull ProgressIndicator progressIndicator) {
+                    try {
+                        URL url = new URL(fileNode.getUrl());
+                        HttpURLConnection urlconn = (HttpURLConnection) url.openConnection();
+                        urlconn.setReadTimeout(1000);
+                        urlconn.setConnectTimeout(1000);
+                        urlconn.setRequestMethod("GET");
+                        urlconn.setRequestProperty("UserAgent", "Kodokux github intellij plugin");
+                        urlconn.setRequestProperty("Accept", "text/html, text/plain");
+                        urlconn.connect();
+                        BufferedReader in = new BufferedReader(new InputStreamReader(urlconn.getInputStream()));
+                        StringBuilder buffer = new StringBuilder();
+                        char[] b = new char[1024];
+                        int line;
+                        while (0 <= (line = in.read(b))) {
+                            buffer.append(b, 0, line);
+                        }
+                        in.close();
+                        urlconn.disconnect();
+                        fileSource = buffer.toString();
+                    } catch (IOException e) {
+                        e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    }
+                }
+            }.queue();
+        }
     }
 
 
@@ -244,12 +288,12 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
 
     @Override
     public void dispose() {
-        //To change body of implemented methods use File | Settings | File Templates.
+        System.out.println("test");
     }
 
     public void focusInRoot() {
 //        jTree.setSelectionPath();
-        jTree.setSelectionPath(new TreePath(((DefaultMutableTreeNode)model.getRoot()).getPath()));
+        jTree.setSelectionPath(new TreePath(((DefaultMutableTreeNode) model.getRoot()).getPath()));
     }
 
     private class ShowSettingsAction extends AnAction {
