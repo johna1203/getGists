@@ -231,7 +231,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                 public String fileSource;
                 @Override
                 public void onSuccess() {
-                    if (!fileSource.isEmpty()) {
+                    if (fileSource != null && !fileSource.isEmpty()) {
                         ApplicationManager.getApplication().runWriteAction(new Runnable() {
                             @Override
                             public void run() {
@@ -253,8 +253,8 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                     try {
                         URL url = new URL(fileNode.getUrl());
                         HttpURLConnection urlconn = (HttpURLConnection) url.openConnection();
-                        urlconn.setReadTimeout(1000);
-                        urlconn.setConnectTimeout(1000);
+                        urlconn.setReadTimeout(10000);
+                        urlconn.setConnectTimeout(10000);
                         urlconn.setRequestMethod("GET");
                         urlconn.setRequestProperty("UserAgent", "Kodokux github intellij plugin");
                         urlconn.setRequestProperty("Accept", "text/html, text/plain");
