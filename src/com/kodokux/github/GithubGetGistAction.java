@@ -71,7 +71,6 @@ public class GithubGetGistAction extends DumbAwareAction {
 
                 final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
                 root.removeAllChildren();
-
                 if (jsonElement != null) {
                     for (JsonElement jsonElement1 : jsonElement.getAsJsonArray()) {
                         String name = jsonElement1.getAsJsonObject().get("id").getAsString();
@@ -94,6 +93,7 @@ public class GithubGetGistAction extends DumbAwareAction {
 
                     }
                 }
+                model.reload();
             }
         });
     }

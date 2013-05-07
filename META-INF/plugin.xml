@@ -1,17 +1,15 @@
 <idea-plugin version="2">
     <id>com.kodokux.github</id>
-    <name>Plugin display name here</name>
-    <version>1.0</version>
-    <vendor email="support@yourcompany.com" url="http://www.yourcompany.com">YourCompany</vendor>
+    <name>Get gist</name>
+    <version>1.0.1</version>
+    <vendor email="johnathan@kodokuman.com" url="http://www.kodokux.com">Kodokux System And Support</vendor>
 
     <description><![CDATA[
-      Enter short description for your plugin here.<br>
-      <small>most HTML tags may be used</small>
+      Get gist for Github
       ]]></description>
 
     <change-notes><![CDATA[
-      Add change notes here.<br>
-      <small>most HTML tags may be used</small>
+      Reload tree model.<br>
       ]]>
     </change-notes>
 
