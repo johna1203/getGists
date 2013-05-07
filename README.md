@@ -1,4 +1,4 @@
-##IntelliJ IDEA 用 plugin
+##IntelliJ IDEA 用 plugin (Get Gist)
 
 gistを取得する。
 
