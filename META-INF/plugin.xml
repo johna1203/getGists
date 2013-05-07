@@ -34,20 +34,20 @@
     </project-components>
 
     <actions>
-        <action id="Kodokux.Get.Gist" class="com.kodokux.github.GithubGetGistAction">
-            <add-to-group group-id="EditorPopupMenu"/>
-            <add-to-group group-id="ProjectViewPopupMenu"/>
-            <add-to-group group-id="EditorTabPopupMenu"/>
-            <add-to-group group-id="ConsoleEditorPopupMenu"/>
-        </action>>
+        <group id="Kodokux.Gist.ActionGrup" text="FindBugsSubGroup" popup="true">
+            <action id="Kodokux.Get.Gist" class="com.kodokux.github.GithubGetGistAction">
+                <add-to-group group-id="EditorPopupMenu"/>
+                <add-to-group group-id="ProjectViewPopupMenu"/>
+                <add-to-group group-id="EditorTabPopupMenu"/>
+                <add-to-group group-id="ConsoleEditorPopupMenu"/>
+            </action>
+        </group>
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="getGist" anchor="bottom" factoryClass="com.kodokux.github.GithubGetGistToolWindowFactory" />
+        <toolWindow id="getGist" anchor="bottom" factoryClass="com.kodokux.github.GithubGetGistToolWindowFactory"/>
         <projectService serviceInterface="com.kodokux.github.ui.GithubGetGistToolWindowView"
-                        serviceImplementation="com.kodokux.github.ui.GithubGetGistToolWindowView" />
-        <projectService serviceInterface="com.kodokux.github.ui.GistsEditorView"
-                        serviceImplementation="com.kodokux.github.ui.GistsEditorView" />
+                        serviceImplementation="com.kodokux.github.ui.GithubGetGistToolWindowView"/>
     </extensions>
 </idea-plugin>

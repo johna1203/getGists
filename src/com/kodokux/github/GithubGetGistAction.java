@@ -16,6 +16,9 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
+import com.intellij.openapi.wm.ToolWindowFactory;
+import com.intellij.openapi.wm.ToolWindowManager;
+import com.intellij.openapi.wm.impl.ToolWindowManagerImpl;
 import com.intellij.util.Consumer;
 import com.kodokux.github.ui.GithubGetGistToolWindowView;
 import icons.GithubIcons;
@@ -49,17 +52,24 @@ public class GithubGetGistAction extends DumbAwareAction {
     public void actionPerformed(AnActionEvent e) {
 
         final Project project = e.getData(PlatformDataKeys.PROJECT);
-        Editor editor = e.getData(PlatformDataKeys.EDITOR);
 
         GithubSettings settings = GithubSettings.getInstance();
         getGistWithProgress(project, settings.getLogin(), settings.getPassword(), new Consumer<JsonElement>() {
             @Override
             public void consume(JsonElement jsonElement) {
                 GithubGetGistToolWindowView view = GithubGetGistToolWindowView.getInstance(project);
-                final Editor tooWindowEditor = view.getEditor();
+                view.focusInRoot();
                 DefaultTreeModel model = view.getModel();
 
-                DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
+                ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("getGist");
+                if (toolWindow != null) {
+                    if (!toolWindow.isActive()) {
+                        toolWindow.activate(null);
+                    }
+                }
+
+
+                final DefaultMutableTreeNode root = (DefaultMutableTreeNode) model.getRoot();
                 root.removeAllChildren();
 
                 if (jsonElement != null) {
@@ -86,13 +96,12 @@ public class GithubGetGistAction extends DumbAwareAction {
                 }
             }
         });
-
     }
 
     private void getGistWithProgress(Project project, final String login, final String password, final Consumer<JsonElement> consumer) {
         new Task.Backgroundable(project, "Creating Gist") {
 
-            public JsonElement jsonElement;
+            public JsonElement jsonElement = null;
 
             @Override
             public void onSuccess() {
@@ -103,9 +112,8 @@ public class GithubGetGistAction extends DumbAwareAction {
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
                     jsonElement = GithubApiUtil.getRequest(GithubApiUtil.getGitHost(), login, password, "/gists");
-                    System.out.println(jsonElement.toString());
                 } catch (IOException e) {
-                    e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
+                    e.printStackTrace();
                 }
             }
         }.queue();

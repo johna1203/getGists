@@ -1,10 +1,11 @@
 package com.kodokux.github.ui;
 
-import com.google.gson.JsonElement;
 import com.intellij.lang.Language;
 import com.intellij.openapi.Disposable;
 import com.intellij.openapi.actionSystem.*;
 import com.intellij.openapi.application.ApplicationManager;
+import com.intellij.openapi.command.CommandProcessor;
+import com.intellij.openapi.command.UndoConfirmationPolicy;
 import com.intellij.openapi.components.ServiceManager;
 import com.intellij.openapi.diff.DiffContent;
 import com.intellij.openapi.diff.DiffManager;
@@ -12,6 +13,8 @@ import com.intellij.openapi.diff.DiffRequest;
 import com.intellij.openapi.diff.SimpleContent;
 import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
+import com.intellij.openapi.editor.SelectionModel;
+import com.intellij.openapi.fileEditor.FileEditorManager;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -24,15 +27,12 @@ import com.intellij.openapi.vfs.VirtualFile;
 import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
-import com.intellij.ui.PopupHandler;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.kodokux.github.EditorManager;
 import com.kodokux.github.GitHubGistFileTreeNode;
 import com.kodokux.github.GithubGetGistAction;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.github.GithubApiUtil;
-import org.jetbrains.plugins.github.GithubSettings;
 import org.jetbrains.plugins.github.ui.GitHubSettingsConfigurable;
 
 import javax.swing.*;
@@ -40,14 +40,15 @@ import javax.swing.event.TreeSelectionEvent;
 import javax.swing.event.TreeSelectionListener;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
+import javax.swing.tree.TreePath;
 import java.awt.*;
+import java.awt.event.KeyAdapter;
+import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
-import java.util.*;
-import java.util.List;
 
 /**
  * Created with IntelliJ IDEA.
@@ -72,6 +73,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
     // used for diff view
     private String previousCode;
     private VirtualFile previousFile;
+    private Tree jTree;
 
     public GithubGetGistToolWindowView(final Project project, KeymapManager keymapManager, final ToolWindowManager toolWindowManager) {
         this(toolWindowManager, keymapManager, project, "php");
@@ -94,6 +96,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
         return model;
     }
 
+
     private void setupUI() {
         EditorManager editorManager = EditorManager.getInstance(project, FileTypeManager.getInstance().getFileTypeByExtension(extension), true);
         editor = editorManager.getEditor();
@@ -102,16 +105,57 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
         DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Gists");
         model = new DefaultTreeModel(rootNode);
 
-        JTree jTree = new Tree(model);
+        jTree = new Tree(model);
 
         jTree.addTreeSelectionListener(new TreeSelectionListener() {
             @Override
             public void valueChanged(TreeSelectionEvent e) {
-                System.out.println("johna");
                 Tree _tree = (Tree) e.getSource();
                 if (_tree.getLastSelectedPathComponent() instanceof GitHubGistFileTreeNode) {
                     final GitHubGistFileTreeNode fileNode = (GitHubGistFileTreeNode) _tree.getLastSelectedPathComponent();
                     getGistsRawContent(fileNode);
+                }
+            }
+        });
+
+        jTree.addKeyListener(new KeyAdapter() {
+            @Override
+            public void keyReleased(KeyEvent e) {
+                Tree _tree = (Tree) e.getSource();
+                if (_tree.getLastSelectedPathComponent() instanceof GitHubGistFileTreeNode) {
+                    if (e.getKeyChar() == KeyEvent.VK_ENTER) {
+                        final Editor editor1 = FileEditorManager.getInstance(project).getSelectedTextEditor();
+                        final String sourceCode = editor.getDocument().getText();
+                        if (editor1 != null) {
+                            CommandProcessor.getInstance().executeCommand(editor1.getProject(), new Runnable() {
+                                @Override
+                                public void run() {
+                                    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                                        @Override
+                                        public void run() {
+                                            Document document = editor1.getDocument();
+                                            int offsetStart = editor1.getCaretModel().getOffset();
+                                            int sourceCodeLength = sourceCode.length();
+                                            SelectionModel selectionModel = editor1.getSelectionModel();
+
+                                            if (selectionModel.hasSelection()) {
+                                                offsetStart = selectionModel.getSelectionStart();
+                                                int offsetEnd = selectionModel.getSelectionEnd();
+                                                document.replaceString(offsetStart, offsetEnd, sourceCode);
+                                                selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
+                                                editor1.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
+                                            } else {
+                                                document.insertString(offsetStart, sourceCode);
+                                                selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
+                                                editor1.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
+                                            }
+                                            editor1.getScrollingModel();
+                                        }
+                                    });
+                                }
+                            }, "Get Gist", UndoConfirmationPolicy.DEFAULT);
+                        }
+                    }
                 }
             }
         });
@@ -129,24 +173,22 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
 
         final AnAction diffAction = createShowDiffAction();
         DefaultActionGroup group = new DefaultActionGroup();
-        group.add(new GithubGetGistAction());
+        final ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("Kodokux.Gist.ActionGrup");
+        final ActionManager actionManager = ActionManager.getInstance();
+
+        group.add(actionGroup);
 //        group.add(diffAction);
         group.add(new ShowSettingsAction());
 
 
-        final ActionManager actionManager = ActionManager.getInstance();
-        final ActionToolbar actionToolBar = actionManager.createActionToolbar("ASM", group, true);
+        final ActionToolbar actionToolBar = actionManager.createActionToolbar("GetGist", group, true);
         final JPanel buttonsPanel = new JPanel(new BorderLayout());
         buttonsPanel.add(actionToolBar.getComponent(), BorderLayout.CENTER);
-        PopupHandler.installPopupHandler(editor.getContentComponent(), group, "ASM", actionManager);
+//        PopupHandler.installPopupHandler(editor.getContentComponent(), group, "ASM", actionManager);
         setToolbar(buttonsPanel);
     }
 
     private void getGistsRawContent(final GitHubGistFileTreeNode fileNode) {
-
-        final String login = GithubSettings.getInstance().getLogin();
-        final String password = GithubSettings.getInstance().getLogin();
-
 
         new Task.Backgroundable(project, "Creating Gist") {
 
@@ -203,6 +245,11 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
     @Override
     public void dispose() {
         //To change body of implemented methods use File | Settings | File Templates.
+    }
+
+    public void focusInRoot() {
+//        jTree.setSelectionPath();
+        jTree.setSelectionPath(new TreePath(((DefaultMutableTreeNode)model.getRoot()).getPath()));
     }
 
     private class ShowSettingsAction extends AnAction {
