@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.kodokux.github</id>
-    <name>Get gist</name>
-    <version>1.0.1</version>
+    <name>Get gist (Beta)</name>
+    <version>1.0.1.1</version>
     <vendor email="johnathan@kodokuman.com" url="http://www.kodokux.com">Kodokux System And Support</vendor>
 
     <description><![CDATA[
