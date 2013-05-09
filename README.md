@@ -7,3 +7,7 @@ get gists!!!!
 ![Demo](/screenshot.png)
 
 ![Demo](/screenshot2.png)
+
+#Download
+
+http://plugins.jetbrains.com/plugin/?idea&pluginId=7236
