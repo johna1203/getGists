@@ -2,7 +2,7 @@
 
 get gists!!!!
 
-[[youtube-{CQTuLFXUF1w}-{560}x{315}]]
+[![ScreenShot](/youtubeVideo.png)](http://www.youtube.com/watch?v=CQTuLFXUF1w)
 
 ![Demo](/screenshot.png)
 
