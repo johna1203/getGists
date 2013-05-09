@@ -40,12 +40,25 @@
                 <add-to-group group-id="ConsoleEditorPopupMenu"/>
             </action>
         </group>
+
+
+        <action id="TestSampleAction" class="com.kodokux.github.TestSampleAction" text="Test Sample" description="Test">
+            <add-to-group group-id="ToolsBasicGroup" anchor="last"/>
+        </action>
     </actions>
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
         <toolWindow id="getGist" anchor="bottom" factoryClass="com.kodokux.github.GithubGetGistToolWindowFactory"/>
+        <!--<projectService serviceInterface="com.kodokux.github.ui.GithubGetGistToolWindowView"-->
+                        <!--serviceImplementation="com.kodokux.github.GithubGetGistCache"/>-->
         <projectService serviceInterface="com.kodokux.github.ui.GithubGetGistToolWindowView"
-                        serviceImplementation="com.kodokux.github.ui.GithubGetGistToolWindowView"/>
+                        serviceImplementation="com.kodokux.github.ui.GithubGetGistToolWindowView" />
+
+        <!--<defaultLiveTemplatesProvider id="liveTemplateGetGist" implementation="com.kodokux.github.GistLiveTemplateProvider" />-->
+        <!--<completion.contributor language="any"-->
+                                <!--implementationClass="com.kodokux.github.PropertyCompletionContributor"-->
+                                <!--id="Gists" order="FIRST"/>-->
+
     </extensions>
 </idea-plugin>

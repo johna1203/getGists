@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.UndoConfirmationPolicy;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.diff.DiffContent;
 import com.intellij.openapi.diff.DiffManager;
 import com.intellij.openapi.diff.DiffRequest;
@@ -32,9 +33,10 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
+import com.intellij.util.Consumer;
 import com.kodokux.github.EditorManager;
 import com.kodokux.github.GitHubGistFileTreeNode;
-import com.kodokux.github.GithubGetGistAction;
+import com.kodokux.github.GithubGetGistCache;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.plugins.github.ui.GitHubSettingsConfigurable;
 
@@ -47,7 +49,6 @@ import javax.swing.tree.TreePath;
 import java.awt.*;
 import java.awt.event.KeyAdapter;
 import java.awt.event.KeyEvent;
-import java.awt.event.KeyListener;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
@@ -112,16 +113,22 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                             int sourceCodeLength = sourceCode.length();
                             SelectionModel selectionModel = mainEditor.getSelectionModel();
 
-                            if (selectionModel.hasSelection()) {
-                                offsetStart = selectionModel.getSelectionStart();
-                                int offsetEnd = selectionModel.getSelectionEnd();
-                                document.replaceString(offsetStart, offsetEnd, sourceCode);
-                                selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
-                                mainEditor.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
-                            } else {
-                                document.insertString(offsetStart, sourceCode);
-                                selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
-                                mainEditor.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
+                            try {
+                                if (selectionModel != null) {
+                                    if (selectionModel.hasSelection()) {
+                                        offsetStart = selectionModel.getSelectionStart();
+                                        int offsetEnd = selectionModel.getSelectionEnd();
+                                        document.replaceString(offsetStart, offsetEnd, sourceCode);
+                                        selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
+                                        mainEditor.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
+                                    } else {
+                                        document.insertString(offsetStart, sourceCode);
+                                        selectionModel.setSelection(offsetStart, offsetStart + sourceCodeLength);
+                                        mainEditor.getCaretModel().moveToOffset(offsetStart + sourceCodeLength);
+                                    }
+                                }
+                            } catch (Exception e) {
+                                e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                             }
                             mainEditor.getScrollingModel();
                         }
@@ -182,7 +189,23 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                 Tree _tree = (Tree) e.getSource();
                 if (_tree.getLastSelectedPathComponent() instanceof GitHubGistFileTreeNode) {
                     final GitHubGistFileTreeNode fileNode = (GitHubGistFileTreeNode) _tree.getLastSelectedPathComponent();
-                    getGistsRawContent(fileNode);
+
+                    ApplicationManager.getApplication().runWriteAction(new Runnable() {
+                        @Override
+                        public void run() {
+                            final PsiFile cache = GithubGetGistCache.getCache(project, fileNode.getFilename());
+                            int size = 0;
+                            try {
+                                size = Integer.parseInt(fileNode.getSize());
+                            } catch (NumberFormatException e1) {
+                            }
+                            if (cache == null || cache.getText().length() != size) {
+                                getGistsRawContent(fileNode);
+                            } else {
+                                getEditor().getDocument().setText(cache.getText());
+                            }
+                        }
+                    });
                 }
             }
         });
@@ -229,20 +252,15 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
         if (fileNode != null) {
             new Task.Backgroundable(project, "Get Gist") {
                 public String fileSource;
+
                 @Override
                 public void onSuccess() {
-                    if (fileSource != null && !fileSource.isEmpty()) {
+                    if (fileSource != null) {
                         ApplicationManager.getApplication().runWriteAction(new Runnable() {
                             @Override
                             public void run() {
-                                int i = fileNode.getFilename().lastIndexOf('.');
-                                String ext = null;
-                                if (i > 0) {
-                                    ext = fileNode.getFilename().substring(i + 1);
-                                }
-                                FileType type = FileTypeManager.getInstance().getFileTypeByExtension(ext);
-                                PsiFile psiFile = PsiFileFactory.getInstance(project).createFileFromText(fileNode.getFilename(), type, fileSource);
                                 getEditor().getDocument().setText(fileSource);
+                                GithubGetGistCache.setCache(project, fileNode.getFilename(), fileSource);
                             }
                         });
                     }
@@ -268,6 +286,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                         }
                         in.close();
                         urlconn.disconnect();
+
                         fileSource = buffer.toString();
                     } catch (IOException e) {
                         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
