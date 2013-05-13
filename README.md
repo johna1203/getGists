@@ -10,4 +10,4 @@ get gists!!!!
 
 #Download
 
-http://plugins.jetbrains.com/plugin/?idea&pluginId=7236 (Wait for approve)
+http://plugins.jetbrains.com/plugin/?idea&pluginId=7236
