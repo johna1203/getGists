@@ -33,10 +33,10 @@ public class EditorManager {
     }
 
     public static EditorManager getInstance(Project project, FileType fileTypeByExtension, boolean b) {
-        if (instance == null) {
+        //if (instance == null) {
             return instance = new EditorManager(project, fileTypeByExtension, b);
-        }
-        return instance;
+        //}
+        //return instance;
     }
 
     public Editor getEditor() {
