@@ -193,17 +193,18 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                     ApplicationManager.getApplication().runWriteAction(new Runnable() {
                         @Override
                         public void run() {
-                            final PsiFile cache = GithubGetGistCache.getCache(project, fileNode.getFilename());
-                            int size = 0;
-                            try {
-                                size = Integer.parseInt(fileNode.getSize());
-                            } catch (NumberFormatException e1) {
-                            }
-                            if (cache == null || cache.getText().length() != size) {
-                                getGistsRawContent(fileNode);
-                            } else {
-                                getEditor().getDocument().setText(cache.getText());
-                            }
+//                            final PsiFile cache = GithubGetGistCache.getCache(project, fileNode.getFilename());
+//                            int size = 0;
+//                            try {
+//                                size = Integer.parseInt(fileNode.getSize());
+//                            } catch (NumberFormatException e1) {
+//                            }
+//                            if (cache == null || cache.getText().length() != size) {
+//                                getGistsRawContent(fileNode);
+//                            } else {
+//                                getEditor().getDocument().setText(cache.getText());
+//                            }
+                            getGistsRawContent(fileNode);
                         }
                     });
                 }

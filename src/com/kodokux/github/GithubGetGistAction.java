@@ -73,7 +73,7 @@ public class GithubGetGistAction extends DumbAwareAction {
                 root.removeAllChildren();
                 if (jsonElement != null) {
                     for (JsonElement jsonElement1 : jsonElement.getAsJsonArray()) {
-                        String name = jsonElement1.getAsJsonObject().get("id").getAsString();
+                        String name = jsonElement1.getAsJsonObject().get("description").getAsString();
                         DefaultMutableTreeNode node = new DefaultMutableTreeNode(name);
                         root.add(node);
                         if (jsonElement1.getAsJsonObject().has("files")){
@@ -99,7 +99,7 @@ public class GithubGetGistAction extends DumbAwareAction {
     }
 
     private void getGistWithProgress(Project project, final String login, final String password, final Consumer<JsonElement> consumer) {
-        new Task.Backgroundable(project, "Creating Gist") {
+        new Task.Backgroundable(project, "Get Gist") {
 
             public JsonElement jsonElement = null;
 

@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.kodokux.github</id>
     <name>Get gist (Beta)</name>
-    <version>1.0.1.4</version>
+    <version>1.0.1.5</version>
     <vendor email="johnathan@kodokuman.com" url="http://www.kodokux.com">Kodokux System And Support</vendor>
 
     <description><![CDATA[
@@ -12,6 +12,8 @@
       Fixed https://github.com/johna1203/getGists/issues/6 <br />
       1.0.1.3 : Cache gists in .idea/gists <br />
       1.0.1.4 : Bugfix <br />
+      1.0.1.5 : Change gits tree list for gist description. <br />
+      disabled gists cache.
       ]]>
     </change-notes>
 
