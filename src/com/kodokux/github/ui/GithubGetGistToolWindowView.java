@@ -261,7 +261,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                             @Override
                             public void run() {
                                 getEditor().getDocument().setText(fileSource);
-                                GithubGetGistCache.setCache(project, fileNode.getFilename(), fileSource);
+                                //GithubGetGistCache.setCache(project, fileNode.getFilename(), fileSource);
                             }
                         });
                     }
