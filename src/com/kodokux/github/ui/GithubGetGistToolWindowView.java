@@ -329,7 +329,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
 
         @Override
         public void actionPerformed(final AnActionEvent e) {
-            ShowSettingsUtil.getInstance().showSettingsDialog(project, project.getComponent(GitHubSettingsConfigurable.class));
+            ShowSettingsUtil.getInstance().showSettingsDialog(project, "GitHub");
         }
     }
 
