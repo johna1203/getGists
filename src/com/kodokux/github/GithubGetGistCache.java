@@ -1,6 +1,5 @@
 package com.kodokux.github;
 
-import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
@@ -13,9 +12,6 @@ import com.intellij.psi.PsiDirectory;
 import com.intellij.psi.PsiFile;
 import com.intellij.psi.PsiFileFactory;
 import com.intellij.psi.PsiManager;
-import com.intellij.psi.impl.file.PsiFileImplUtil;
-import com.intellij.util.Consumer;
-import org.jetbrains.annotations.NonNls;
 
 import java.io.File;
 import java.io.IOException;

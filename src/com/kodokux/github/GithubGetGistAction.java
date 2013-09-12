@@ -16,15 +16,14 @@ import com.intellij.openapi.progress.Task;
 import com.intellij.openapi.project.DumbAwareAction;
 import com.intellij.openapi.project.Project;
 import com.intellij.openapi.wm.ToolWindow;
-import com.intellij.openapi.wm.ToolWindowFactory;
 import com.intellij.openapi.wm.ToolWindowManager;
-import com.intellij.openapi.wm.impl.ToolWindowManagerImpl;
 import com.intellij.util.Consumer;
+import com.kodokux.github.api.GithubApiUtil;
 import com.kodokux.github.ui.GithubGetGistToolWindowView;
 import icons.GithubIcons;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.github.GithubApiUtil;
-import org.jetbrains.plugins.github.GithubSettings;
+
+import org.jetbrains.plugins.github.util.GithubSettings;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -54,7 +53,7 @@ public class GithubGetGistAction extends DumbAwareAction {
         final Project project = e.getData(PlatformDataKeys.PROJECT);
 
         GithubSettings settings = GithubSettings.getInstance();
-        getGistWithProgress(project, settings.getLogin(), settings.getPassword(), new Consumer<JsonElement>() {
+        getGistWithProgress(project, new Consumer<JsonElement>() {
             @Override
             public void consume(JsonElement jsonElement) {
                 GithubGetGistToolWindowView view = GithubGetGistToolWindowView.getInstance(project);
@@ -63,6 +62,7 @@ public class GithubGetGistAction extends DumbAwareAction {
 
                 ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("getGist");
                 if (toolWindow != null) {
+                    toolWindow.setIcon(GithubIcons.Github_icon);
                     if (!toolWindow.isActive()) {
                         toolWindow.activate(null);
                     }
@@ -76,7 +76,7 @@ public class GithubGetGistAction extends DumbAwareAction {
                         String name = jsonElement1.getAsJsonObject().get("description").getAsString();
                         DefaultMutableTreeNode node = new DefaultMutableTreeNode(name);
                         root.add(node);
-                        if (jsonElement1.getAsJsonObject().has("files")){
+                        if (jsonElement1.getAsJsonObject().has("files")) {
                             JsonObject files = jsonElement1.getAsJsonObject().get("files").getAsJsonObject();
                             Set<Map.Entry<String, JsonElement>> file = files.entrySet();
                             for (Map.Entry<String, JsonElement> entry : files.entrySet()) {
@@ -85,7 +85,7 @@ public class GithubGetGistAction extends DumbAwareAction {
                                 if (filesObject.has("size") && filesObject.has("filename") && filesObject.has("raw_url")) {
                                     String size = filesObject.get("size").getAsString();
                                     String filename = filesObject.get("filename").getAsString();
-                                    String raw_url  = filesObject.get("raw_url").getAsString();
+                                    String raw_url = filesObject.get("raw_url").getAsString();
                                     node.add(new GitHubGistFileTreeNode(size, filename, raw_url));
                                 }
                             }
@@ -98,7 +98,7 @@ public class GithubGetGistAction extends DumbAwareAction {
         });
     }
 
-    private void getGistWithProgress(Project project, final String login, final String password, final Consumer<JsonElement> consumer) {
+    private void getGistWithProgress(Project project, final Consumer<JsonElement> consumer) {
         new Task.Backgroundable(project, "Get Gist") {
 
             public JsonElement jsonElement = null;
@@ -111,7 +111,8 @@ public class GithubGetGistAction extends DumbAwareAction {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
-                    jsonElement = GithubApiUtil.getRequest(GithubApiUtil.getGitHost(), login, password, "/gists");
+                    GithubSettings settings = GithubSettings.getInstance();
+                    jsonElement = GithubApiUtil.getRequest(settings.getAuthData(), "/gists");
                 } catch (IOException e) {
                     e.printStackTrace();
                 }

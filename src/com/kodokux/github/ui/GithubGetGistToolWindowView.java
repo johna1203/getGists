@@ -7,7 +7,6 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.UndoConfirmationPolicy;
 import com.intellij.openapi.components.ServiceManager;
-import com.intellij.openapi.components.StoragePathMacros;
 import com.intellij.openapi.diff.DiffContent;
 import com.intellij.openapi.diff.DiffManager;
 import com.intellij.openapi.diff.DiffRequest;
@@ -16,7 +15,6 @@ import com.intellij.openapi.editor.Document;
 import com.intellij.openapi.editor.Editor;
 import com.intellij.openapi.editor.SelectionModel;
 import com.intellij.openapi.fileEditor.FileEditorManager;
-import com.intellij.openapi.fileTypes.FileType;
 import com.intellij.openapi.fileTypes.FileTypeManager;
 import com.intellij.openapi.keymap.KeymapManager;
 import com.intellij.openapi.options.ShowSettingsUtil;
@@ -33,12 +31,10 @@ import com.intellij.psi.PsiFileFactory;
 import com.intellij.ui.IdeBorderFactory;
 import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
-import com.intellij.util.Consumer;
 import com.kodokux.github.EditorManager;
 import com.kodokux.github.GitHubGistFileTreeNode;
-import com.kodokux.github.GithubGetGistCache;
+import icons.GithubIcons;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.github.ui.GitHubSettingsConfigurable;
 
 import javax.swing.*;
 import javax.swing.event.TreeSelectionEvent;
@@ -152,7 +148,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
         this.extension = fileExtension;
 
         ToolWindow window = toolWindowManager.getToolWindow(toolWindowManager.getActiveToolWindowId());
-        if (window != null) {
+        if (null != window) {
             window.activate(new Runnable() {
                 @Override
                 public void run() {
@@ -232,20 +228,15 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
         mySplitPane.setRightComponent(myRightComponent);
         add(mySplitPane);
 
-        final AnAction diffAction = createShowDiffAction();
         DefaultActionGroup group = new DefaultActionGroup();
-        final ActionGroup actionGroup = (ActionGroup) ActionManager.getInstance().getAction("Kodokux.Gist.ActionGrup");
         final ActionManager actionManager = ActionManager.getInstance();
 
-        group.add(actionGroup);
-//        group.add(diffAction);
         group.add(new ShowSettingsAction());
 
 
         final ActionToolbar actionToolBar = actionManager.createActionToolbar("GetGist", group, true);
         final JPanel buttonsPanel = new JPanel(new BorderLayout());
         buttonsPanel.add(actionToolBar.getComponent(), BorderLayout.CENTER);
-//        PopupHandler.installPopupHandler(editor.getContentComponent(), group, "ASM", actionManager);
         setToolbar(buttonsPanel);
     }
 
