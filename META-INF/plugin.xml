@@ -1,7 +1,7 @@
 <idea-plugin version="2">
     <id>com.kodokux.github</id>
     <name>Get gist (Beta)</name>
-    <version>1.0.1.7</version>
+    <version>1.0.1.8</version>
     <vendor email="johnathan@kodokuman.com" url="http://www.kodokux.com">Kodokux System And Support</vendor>
 
     <description><![CDATA[
@@ -16,11 +16,14 @@
       disabled gists cache.
       1.0.1.6 : disabled gists cache. (Bugfix)
       1.0.1.7 : Fixed showSettingsDialog button action
+      1.0.1.8 : fixed https://github.com/johna1203/getGists/issues/7 <br />
+          add icon in toolWindow
+
       ]]>
     </change-notes>
 
     <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Build+Number+Ranges for description -->
-    <idea-version since-build="107.105"/>
+    <idea-version since-build="131.61"/>
 
     <!-- please see http://confluence.jetbrains.net/display/IDEADEV/Plugin+Compatibility+with+IntelliJ+Platform+Products
          on how to target different products -->
@@ -55,7 +58,7 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
-        <toolWindow id="getGist" anchor="bottom" factoryClass="com.kodokux.github.GithubGetGistToolWindowFactory"
+        <toolWindow id="Get Gist" anchor="bottom" factoryClass="com.kodokux.github.GithubGetGistToolWindowFactory"
                     icon="GithubIcons.Github_icon"/>
         <!--<projectService serviceInterface="com.kodokux.github.ui.GithubGetGistToolWindowView"-->
         <!--serviceImplementation="com.kodokux.github.GithubGetGistCache"/>-->

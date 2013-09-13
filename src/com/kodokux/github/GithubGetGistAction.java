@@ -60,7 +60,7 @@ public class GithubGetGistAction extends DumbAwareAction {
                 view.focusInRoot();
                 DefaultTreeModel model = view.getModel();
 
-                ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("getGist");
+                ToolWindow toolWindow = ToolWindowManager.getInstance(project).getToolWindow("Get Gist");
                 if (toolWindow != null) {
                     toolWindow.setIcon(GithubIcons.Github_icon);
                     if (!toolWindow.isActive()) {

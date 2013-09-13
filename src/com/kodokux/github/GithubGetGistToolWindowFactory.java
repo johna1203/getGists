@@ -17,6 +17,6 @@ public class GithubGetGistToolWindowFactory implements ToolWindowFactory {
     @Override
     public void createToolWindowContent(Project project, ToolWindow toolWindow) {
         GithubGetGistToolWindowView view = GithubGetGistToolWindowView.getInstance(project);
-        toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().createContent(view, "Gists", false));
+        toolWindow.getContentManager().addContent(ContentFactory.SERVICE.getInstance().createContent(view, "", false));
     }
 }

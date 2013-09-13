@@ -234,7 +234,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
         group.add(new ShowSettingsAction());
 
 
-        final ActionToolbar actionToolBar = actionManager.createActionToolbar("GetGist", group, true);
+        final ActionToolbar actionToolBar = actionManager.createActionToolbar("Get Gist", group, true);
         final JPanel buttonsPanel = new JPanel(new BorderLayout());
         buttonsPanel.add(actionToolBar.getComponent(), BorderLayout.CENTER);
         setToolbar(buttonsPanel);
