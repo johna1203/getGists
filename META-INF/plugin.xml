@@ -1,3 +1,53 @@
+<!DOCTYPE idea-plugin [
+        <!ELEMENT idea-plugin (id|name|version|vendor|description|change-notes|idea-version|depends|application-components|project-components|actions|extensions)*>
+        <!ATTLIST idea-plugin
+                version CDATA #REQUIRED>
+        <!ELEMENT id (#PCDATA)>
+        <!ELEMENT name (#PCDATA)>
+        <!ELEMENT version (#PCDATA)>
+        <!ELEMENT vendor (#PCDATA)>
+        <!ATTLIST vendor
+                email CDATA #REQUIRED
+                url CDATA #REQUIRED>
+        <!ELEMENT description (#PCDATA)>
+        <!ELEMENT change-notes (#PCDATA)>
+        <!ELEMENT idea-version (#PCDATA)>
+        <!ATTLIST idea-version
+                since-build CDATA #REQUIRED>
+        <!ELEMENT depends (#PCDATA)>
+        <!ELEMENT application-components (#PCDATA)>
+        <!ELEMENT project-components (#PCDATA)>
+        <!ELEMENT actions (group)*>
+        <!ELEMENT group (action)*>
+        <!ATTLIST group
+                id CDATA #REQUIRED
+                text CDATA #REQUIRED
+                popup CDATA #REQUIRED>
+        <!ELEMENT action (add-to-group)*>
+        <!ATTLIST action
+                id CDATA #REQUIRED
+                class CDATA #REQUIRED>
+        <!ELEMENT add-to-group (#PCDATA)>
+        <!ATTLIST add-to-group
+                group-id CDATA #REQUIRED>
+        <!ELEMENT extensions (applicationService|toolWindow|projectService)*>
+        <!ATTLIST extensions
+                defaultExtensionNs CDATA #REQUIRED>
+        <!ELEMENT applicationService (#PCDATA)>
+        <!ATTLIST applicationService
+                serviceInterface CDATA #REQUIRED
+                serviceImplementation CDATA #REQUIRED>
+        <!ELEMENT toolWindow (#PCDATA)>
+        <!ATTLIST toolWindow
+                id CDATA #REQUIRED
+                anchor CDATA #REQUIRED
+                factoryClass CDATA #REQUIRED
+                icon CDATA #REQUIRED>
+        <!ELEMENT projectService (#PCDATA)>
+        <!ATTLIST projectService
+                serviceInterface CDATA #REQUIRED
+                serviceImplementation CDATA #REQUIRED>
+        ]>
 <idea-plugin version="2">
     <id>com.kodokux.github</id>
     <name>Get gist (Beta)</name>
@@ -9,6 +59,10 @@
       ]]></description>
 
     <change-notes><![CDATA[
+
+      1.0.1.9 Fixed NoClassDefFoundError, https://github.com/johna1203/getGists/pull/12 <br />
+        Thanks for @Eagllus
+
       Fixed https://github.com/johna1203/getGists/issues/6 <br />
       1.0.1.3 : Cache gists in .idea/gists <br />
       1.0.1.4 : Bugfix <br />
@@ -17,9 +71,8 @@
       1.0.1.6 : disabled gists cache. (Bugfix)
       1.0.1.7 : Fixed showSettingsDialog button action
       1.0.1.8 : fixed https://github.com/johna1203/getGists/issues/7 <br />
-          add icon in toolWindow
-      1.0.1.9 Fixed NoClassDefFoundError, https://github.com/johna1203/getGists/pull/12 <br />
-        Thanks for @Eagllus
+          add icon in toolWindow <br />
+
 
       ]]>
     </change-notes>
