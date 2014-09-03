@@ -141,40 +141,36 @@ public class GithubApiUtil {
                                    @NotNull final Collection<Header> headers,
                                    @NotNull final HttpVerb verb) throws IOException {
     HttpClient client = getHttpClient(auth.getBasicAuth(), auth.isUseProxy());
-    return GithubSslSupport.getInstance()
-      .executeSelfSignedCertificateAwareRequest(client, uri, new ThrowableConvertor<String, HttpMethod, IOException>() {
-        @Override
-        public HttpMethod convert(String uri) throws IOException {
-          HttpMethod method;
-          switch (verb) {
-            case POST:
-              method = new PostMethod(uri);
-              if (requestBody != null) {
-                ((PostMethod)method).setRequestEntity(new StringRequestEntity(requestBody, "application/json", "UTF-8"));
-              }
-              break;
-            case GET:
-              method = new GetMethod(uri);
-              break;
-            case DELETE:
-              method = new DeleteMethod(uri);
-              break;
-            case HEAD:
-              method = new HeadMethod(uri);
-              break;
-            default:
-              throw new IllegalStateException("Wrong HttpVerb: unknown method: " + verb.toString());
-          }
-          GithubAuthData.TokenAuth tokenAuth = auth.getTokenAuth();
-          if (tokenAuth != null) {
-            method.addRequestHeader("Authorization", "token " + tokenAuth.getToken());
-          }
-          for (Header header : headers) {
-            method.addRequestHeader(header);
-          }
-          return method;
+    HttpMethod method;
+    switch (verb) {
+      case POST:
+        method = new PostMethod(uri);
+        if (requestBody != null) {
+          ((PostMethod)method).setRequestEntity(new StringRequestEntity(requestBody, "application/json", "UTF-8"));
         }
-      });
+        break;
+      case GET:
+        method = new GetMethod(uri);
+        break;
+      case DELETE:
+        method = new DeleteMethod(uri);
+        break;
+      case HEAD:
+        method = new HeadMethod(uri);
+        break;
+      default:
+        throw new IllegalStateException("Wrong HttpVerb: unknown method: " + verb.toString());
+    }
+    GithubAuthData.TokenAuth tokenAuth = auth.getTokenAuth();
+    if (tokenAuth != null) {
+      method.addRequestHeader("Authorization", "token " + tokenAuth.getToken());
+    }
+    for (Header header : headers) {
+      method.addRequestHeader(header);
+    }
+
+    client.executeMethod(method);
+    return method;
   }
 
   @NotNull
