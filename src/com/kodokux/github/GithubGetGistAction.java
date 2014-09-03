@@ -112,7 +112,7 @@ public class GithubGetGistAction extends DumbAwareAction {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
-                    GetGistSettings settings = GetGistSettings.getInstance();
+                    GithubSettings settings = GetGistSettings.getInstance();
                     jsonElement = GithubApiUtil.getRequest(settings.getAuthData(), "/gists");
                 } catch (IOException e) {
                     e.printStackTrace();
