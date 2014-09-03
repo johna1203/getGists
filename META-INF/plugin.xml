@@ -61,7 +61,7 @@
     <change-notes><![CDATA[
 
       1.0.1.9 Fixed NoClassDefFoundError, https://github.com/johna1203/getGists/pull/12 <br />
-        Thanks for @Eagllus
+        Thanks for @Eagllus <br/>
 
       Fixed https://github.com/johna1203/getGists/issues/6 <br />
       1.0.1.3 : Cache gists in .idea/gists <br />
