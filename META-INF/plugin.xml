@@ -58,12 +58,16 @@
 
     <extensions defaultExtensionNs="com.intellij">
         <!-- Add your extensions here -->
+        <applicationService serviceInterface="com.kodokux.github.util.GetGistSettings"
+                            serviceImplementation="com.kodokux.github.util.GetGistSettings"/>
         <toolWindow id="Get Gist" anchor="bottom" factoryClass="com.kodokux.github.GithubGetGistToolWindowFactory"
                     icon="GithubIcons.Github_icon"/>
         <!--<projectService serviceInterface="com.kodokux.github.ui.GithubGetGistToolWindowView"-->
         <!--serviceImplementation="com.kodokux.github.GithubGetGistCache"/>-->
         <projectService serviceInterface="com.kodokux.github.ui.GithubGetGistToolWindowView"
                         serviceImplementation="com.kodokux.github.ui.GithubGetGistToolWindowView"/>
+
+        <!--<vcsConfigurableProvider implementation="com.kodokux.github.ui.GithubSettingsConfigurable"/>-->
 
         <!--<defaultLiveTemplatesProvider id="liveTemplateGetGist" implementation="com.kodokux.github.GistLiveTemplateProvider" />-->
         <!--<completion.contributor language="any"-->

@@ -20,10 +20,12 @@ import com.intellij.openapi.wm.ToolWindowManager;
 import com.intellij.util.Consumer;
 import com.kodokux.github.api.GithubApiUtil;
 import com.kodokux.github.ui.GithubGetGistToolWindowView;
+import com.kodokux.github.util.GetGistSettings;
 import icons.GithubIcons;
 import org.jetbrains.annotations.NotNull;
-
+import org.jetbrains.plugins.github.util.GithubAuthDataHolder;
 import org.jetbrains.plugins.github.util.GithubSettings;
+import org.jetbrains.plugins.github.util.GithubUtil;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
@@ -52,7 +54,6 @@ public class GithubGetGistAction extends DumbAwareAction {
 
         final Project project = e.getData(PlatformDataKeys.PROJECT);
 
-        GithubSettings settings = GithubSettings.getInstance();
         getGistWithProgress(project, new Consumer<JsonElement>() {
             @Override
             public void consume(JsonElement jsonElement) {
@@ -98,7 +99,7 @@ public class GithubGetGistAction extends DumbAwareAction {
         });
     }
 
-    private void getGistWithProgress(Project project, final Consumer<JsonElement> consumer) {
+    private void getGistWithProgress(final Project project, final Consumer<JsonElement> consumer) {
         new Task.Backgroundable(project, "Get Gist") {
 
             public JsonElement jsonElement = null;
@@ -111,7 +112,7 @@ public class GithubGetGistAction extends DumbAwareAction {
             @Override
             public void run(@NotNull ProgressIndicator progressIndicator) {
                 try {
-                    GithubSettings settings = GithubSettings.getInstance();
+                    GetGistSettings settings = GetGistSettings.getInstance();
                     jsonElement = GithubApiUtil.getRequest(settings.getAuthData(), "/gists");
                 } catch (IOException e) {
                     e.printStackTrace();
