@@ -2,11 +2,11 @@
 
 get gists!!!!
 
+![Demo](/screenshot_gif.gif)
+
 [![ScreenShot](/youtubeVideo.png)](http://www.youtube.com/watch?v=Zn99vb2SIGI)
 
-![Demo](/screenshot.png)
-
-![Demo](/screenshot2.png)
+![Demo](/screenshot_gif.gif)
 
 #Download
 
