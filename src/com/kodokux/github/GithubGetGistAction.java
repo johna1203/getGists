@@ -23,13 +23,12 @@ import com.kodokux.github.ui.GithubGetGistToolWindowView;
 import com.kodokux.github.util.GetGistSettings;
 import icons.GithubIcons;
 import org.jetbrains.annotations.NotNull;
-import org.jetbrains.plugins.github.util.GithubAuthDataHolder;
 import org.jetbrains.plugins.github.util.GithubSettings;
-import org.jetbrains.plugins.github.util.GithubUtil;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.tree.DefaultTreeModel;
 import java.io.IOException;
+import java.io.UnsupportedEncodingException;
 import java.util.Map;
 import java.util.Set;
 
@@ -75,6 +74,12 @@ public class GithubGetGistAction extends DumbAwareAction {
                 if (jsonElement != null) {
                     for (JsonElement jsonElement1 : jsonElement.getAsJsonArray()) {
                         String name = jsonElement1.getAsJsonObject().get("description").getAsString();
+                        try {
+                            byte b[] = name.getBytes("Windows-1251");
+                            name = new String(b, "UTF-8");
+                        } catch (UnsupportedEncodingException e1) {
+                            e1.printStackTrace();
+                        }
                         DefaultMutableTreeNode node = new DefaultMutableTreeNode(name);
                         root.add(node);
                         if (jsonElement1.getAsJsonObject().has("files")) {
