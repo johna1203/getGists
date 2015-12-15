@@ -33,7 +33,6 @@ import com.intellij.ui.components.JBScrollPane;
 import com.intellij.ui.treeStructure.Tree;
 import com.kodokux.github.EditorManager;
 import com.kodokux.github.GitHubGistFileTreeNode;
-import icons.GithubIcons;
 import org.jetbrains.annotations.NotNull;
 
 import javax.swing.*;
@@ -48,6 +47,7 @@ import java.awt.event.KeyEvent;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
 import java.net.URL;
 
@@ -251,6 +251,12 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                         ApplicationManager.getApplication().runWriteAction(new Runnable() {
                             @Override
                             public void run() {
+                                try {
+                                    byte[] b = fileSource.getBytes("Windows-1251");
+                                    fileSource = new String(b, "UTF-8");
+                                } catch (UnsupportedEncodingException e) {
+                                    e.printStackTrace();
+                                }
                                 getEditor().getDocument().setText(fileSource);
                                 //GithubGetGistCache.setCache(project, fileNode.getFilename(), fileSource);
                             }
