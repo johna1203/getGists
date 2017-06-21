@@ -7,6 +7,7 @@ import com.intellij.openapi.application.ApplicationManager;
 import com.intellij.openapi.command.CommandProcessor;
 import com.intellij.openapi.command.UndoConfirmationPolicy;
 import com.intellij.openapi.components.ServiceManager;
+import com.intellij.openapi.diagnostic.Logger;
 import com.intellij.openapi.diff.DiffContent;
 import com.intellij.openapi.diff.DiffManager;
 import com.intellij.openapi.diff.DiffRequest;
@@ -49,6 +50,7 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.UnsupportedEncodingException;
 import java.net.HttpURLConnection;
+import java.net.SocketTimeoutException;
 import java.net.URL;
 
 /**
@@ -59,7 +61,7 @@ import java.net.URL;
  * To change this template use File | Settings | File Templates.
  */
 public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implements Disposable {
-
+    private static final Logger LOG = Logger.getInstance(GithubGetGistToolWindowView.class);
     private static final String DIFF_WINDOW_TITLE = "Show differences from previous class contents";
     private static final String[] DIFF_TITLES = {"Previous version", "Current version"};
 
@@ -252,7 +254,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                             @Override
                             public void run() {
                                 try {
-                                    byte[] b = fileSource.getBytes("Windows-1251");
+                                    byte[] b = fileSource.getBytes("UTF-8");
                                     fileSource = new String(b, "UTF-8");
                                 } catch (UnsupportedEncodingException e) {
                                     e.printStackTrace();
@@ -275,7 +277,7 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                         urlconn.setRequestProperty("UserAgent", "Kodokux github intellij plugin");
                         urlconn.setRequestProperty("Accept", "text/html, text/plain");
                         urlconn.connect();
-                        BufferedReader in = new BufferedReader(new InputStreamReader(urlconn.getInputStream()));
+                        BufferedReader in = new BufferedReader(new InputStreamReader(urlconn.getInputStream(), "UTF-8"));
                         StringBuilder buffer = new StringBuilder();
                         char[] b = new char[1024];
                         int line;
@@ -286,7 +288,9 @@ public class GithubGetGistToolWindowView extends SimpleToolWindowPanel implement
                         urlconn.disconnect();
 
                         fileSource = buffer.toString();
-                    } catch (IOException e) {
+                    } catch (SocketTimeoutException e) {
+                        LOG.error(e);
+                    }catch (IOException e) {
                         e.printStackTrace();  //To change body of catch statement use File | Settings | File Templates.
                     }
                 }

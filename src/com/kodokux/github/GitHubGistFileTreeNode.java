@@ -14,7 +14,7 @@ public class GitHubGistFileTreeNode extends DefaultMutableTreeNode {
     private final String filename;
     private final String url;
 
-    public GitHubGistFileTreeNode(String size, String filename, String url ) {
+    public GitHubGistFileTreeNode(String size, String filename, String url) {
         this.size = size;
         this.filename = filename;
         this.url = url;
@@ -25,7 +25,7 @@ public class GitHubGistFileTreeNode extends DefaultMutableTreeNode {
         return this.filename;
     }
 
-    public String getFilename () {
+    public String getFilename() {
         return this.filename;
     }
 

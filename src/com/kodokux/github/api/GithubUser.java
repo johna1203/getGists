@@ -22,33 +22,33 @@ import org.jetbrains.annotations.Nullable;
  * @author Aleksey Pivovarov
  */
 public class GithubUser {
-  @NotNull
-  private final String myLogin;
+    @NotNull
+    private final String myLogin;
 
-  @NotNull
-  private final String myHtmlUrl;
+    @NotNull
+    private final String myHtmlUrl;
 
-  @Nullable
-  private final String myGravatarId;
+    @Nullable
+    private final String myGravatarId;
 
-  public GithubUser(@NotNull String login, @NotNull String htmlUrl, @Nullable String gravatarId) {
-    myLogin = login;
-    myHtmlUrl = htmlUrl;
-    myGravatarId = gravatarId;
-  }
+    public GithubUser(@NotNull String login, @NotNull String htmlUrl, @Nullable String gravatarId) {
+        myLogin = login;
+        myHtmlUrl = htmlUrl;
+        myGravatarId = gravatarId;
+    }
 
-  @NotNull
-  public String getLogin() {
-    return myLogin;
-  }
+    @NotNull
+    public String getLogin() {
+        return myLogin;
+    }
 
-  @NotNull
-  public String getHtmlUrl() {
-    return myHtmlUrl;
-  }
+    @NotNull
+    public String getHtmlUrl() {
+        return myHtmlUrl;
+    }
 
-  @Nullable
-  public String getGravatarId() {
-    return myGravatarId;
-  }
+    @Nullable
+    public String getGravatarId() {
+        return myGravatarId;
+    }
 }

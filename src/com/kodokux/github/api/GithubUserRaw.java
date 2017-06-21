@@ -28,99 +28,99 @@ import java.util.Date;
 @SuppressWarnings("UnusedDeclaration")
 class GithubUserRaw implements DataConstructor {
 
-  @Nullable
-  public String login;
-  @Nullable
-  public Long id;
+    @Nullable
+    public String login;
+    @Nullable
+    public Long id;
 
-  @Nullable
-  public String url;
-  @Nullable
-  public String htmlUrl;
+    @Nullable
+    public String url;
+    @Nullable
+    public String htmlUrl;
 
-  @Nullable
-  public String name;
-  @Nullable
-  public String email;
-  @Nullable
-  public String company;
-  @Nullable
-  public String location;
-  @Nullable
-  public String type;
-
-  @Nullable
-  public Integer publicRepos;
-  @Nullable
-  public Integer publicGists;
-  @Nullable
-  public Integer totalPrivateRepos;
-  @Nullable
-  public Integer ownedPrivateRepos;
-  @Nullable
-  public Integer privateGists;
-  @Nullable
-  public Long diskUsage;
-
-  @Nullable
-  public Integer followers;
-  @Nullable
-  public Integer following;
-  @Nullable
-  public String avatarUrl;
-  @Nullable
-  public String gravatarId;
-  @Nullable
-  public Integer collaborators;
-  @Nullable
-  public String blog;
-
-  @Nullable
-  public UserPlanRaw plan;
-
-  @Nullable
-  public Date createdAt;
-
-  public static class UserPlanRaw {
     @Nullable
     public String name;
     @Nullable
-    public Long space;
+    public String email;
     @Nullable
-    public Long collaborators;
+    public String company;
     @Nullable
-    public Long privateRepos;
+    public String location;
+    @Nullable
+    public String type;
+
+    @Nullable
+    public Integer publicRepos;
+    @Nullable
+    public Integer publicGists;
+    @Nullable
+    public Integer totalPrivateRepos;
+    @Nullable
+    public Integer ownedPrivateRepos;
+    @Nullable
+    public Integer privateGists;
+    @Nullable
+    public Long diskUsage;
+
+    @Nullable
+    public Integer followers;
+    @Nullable
+    public Integer following;
+    @Nullable
+    public String avatarUrl;
+    @Nullable
+    public String gravatarId;
+    @Nullable
+    public Integer collaborators;
+    @Nullable
+    public String blog;
+
+    @Nullable
+    public UserPlanRaw plan;
+
+    @Nullable
+    public Date createdAt;
+
+    public static class UserPlanRaw {
+        @Nullable
+        public String name;
+        @Nullable
+        public Long space;
+        @Nullable
+        public Long collaborators;
+        @Nullable
+        public Long privateRepos;
+
+        @SuppressWarnings("ConstantConditions")
+        @NotNull
+        public GithubUserDetailed.UserPlan create() {
+            return new GithubUserDetailed.UserPlan(name, privateRepos);
+        }
+    }
 
     @SuppressWarnings("ConstantConditions")
     @NotNull
-    public GithubUserDetailed.UserPlan create() {
-      return new GithubUserDetailed.UserPlan(name, privateRepos);
-    }
-  }
-
-  @SuppressWarnings("ConstantConditions")
-  @NotNull
-  public GithubUser createUser() {
-    return new GithubUser(login, htmlUrl, gravatarId);
-  }
-
-  @SuppressWarnings("ConstantConditions")
-  @NotNull
-  public GithubUserDetailed createUserDetailed() {
-    return new GithubUserDetailed(login, htmlUrl, gravatarId, name, email, ownedPrivateRepos, type, plan.create());
-  }
-
-  @SuppressWarnings("unchecked")
-  @NotNull
-  @Override
-  public <T> T create(@NotNull Class<T> resultClass) {
-    if (resultClass.isAssignableFrom(GithubUser.class)) {
-      return (T)createUser();
-    }
-    if (resultClass.isAssignableFrom(GithubUserDetailed.class)) {
-      return (T)createUserDetailed();
+    public GithubUser createUser() {
+        return new GithubUser(login, htmlUrl, gravatarId);
     }
 
-    throw new ClassCastException(this.getClass().getName() + ": bad class type: " + resultClass.getName());
-  }
+    @SuppressWarnings("ConstantConditions")
+    @NotNull
+    public GithubUserDetailed createUserDetailed() {
+        return new GithubUserDetailed(login, htmlUrl, gravatarId, name, email, ownedPrivateRepos, type, plan.create());
+    }
+
+    @SuppressWarnings("unchecked")
+    @NotNull
+    @Override
+    public <T> T create(@NotNull Class<T> resultClass) {
+        if (resultClass.isAssignableFrom(GithubUser.class)) {
+            return (T) createUser();
+        }
+        if (resultClass.isAssignableFrom(GithubUserDetailed.class)) {
+            return (T) createUserDetailed();
+        }
+
+        throw new ClassCastException(this.getClass().getName() + ": bad class type: " + resultClass.getName());
+    }
 }
