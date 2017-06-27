@@ -75,7 +75,7 @@ public class GithubGetGistAction extends DumbAwareAction {
                     for (JsonElement jsonElement1 : jsonElement.getAsJsonArray()) {
                         String name = jsonElement1.getAsJsonObject().get("description").getAsString();
                         try {
-                            byte b[] = name.getBytes("Windows-1251");
+                            byte b[] = name.getBytes("UTF-8");
                             name = new String(b, "UTF-8");
                         } catch (UnsupportedEncodingException e1) {
                             e1.printStackTrace();
